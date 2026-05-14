@@ -1,34 +1,54 @@
 import qrcode
-import pandas as pd
 import os
+import csv
 
-# Load student data
-data = pd.read_csv("data/students.csv")
+QR_FOLDER = "qr_codes"
+STUDENT_FILE = "students.csv"
 
-# Clean column names (removes spaces + makes lowercase)
-data.columns = data.columns.str.strip().str.lower()
+os.makedirs(QR_FOLDER, exist_ok=True)
 
-# Check if required columns exist
-if 'id' not in data.columns or 'name' not in data.columns:
-    print("Error: CSV must contain 'id' and 'name' columns")
-    print("Found columns:", data.columns)
-    exit()
 
-# Output folder
-output_folder = "qr_codes"
-os.makedirs(output_folder, exist_ok=True)
+def load_students():
+    students = []
 
-for index, row in data.iterrows():
-    student_id = row['id']
-    name = row['name']
+    with open(STUDENT_FILE, "r") as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if len(row) >= 2:
+                students.append({
+                    "id": row[0].strip(),
+                    "name": row[1].strip()
+                })
 
-    qr_data = f"{student_id},{name}"
+    return students
 
-    qr = qrcode.make(qr_data)
 
-    file_path = os.path.join(output_folder, f"{name}.png")
-    qr.save(file_path)
+def generate_qr(student_id):
+    """
+    Generate QR for a specific student ID from CSV
+    """
 
-    print(f"QR created for {name}")
+    students = load_students()
 
-print("All QR codes generated!") 
+    student = next((s for s in students if s["id"] == str(student_id)), None)
+
+    if not student:
+        return None
+
+    qr_data = f'{student["id"]}|{student["name"]}'
+
+    file_path = os.path.join(QR_FOLDER, f'{student["id"]}.png')
+
+    qr = qrcode.QRCode(
+        version=1,
+        box_size=10,
+        border=5
+    )
+
+    qr.add_data(qr_data)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill="black", back_color="white")
+    img.save(file_path)
+
+    return file_path
