@@ -31,4 +31,4 @@ for index, row in data.iterrows():
 
     print(f"QR created for {name}")
 
-print("All QR codes generated!")
+print("All QR codes generated!") 
