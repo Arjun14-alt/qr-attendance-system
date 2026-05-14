@@ -1,6 +1,0 @@
-flask
-gunicorn
-opencv-python
-qrcode
-numpy
-pandas
