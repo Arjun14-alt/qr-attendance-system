@@ -2,11 +2,17 @@ import qrcode
 import os
 
 QR_FOLDER = "qr_codes"
-os.makedirs(QR_FOLDER, exist_ok=True)
+
+
+def ensure_folder():
+    if not os.path.exists(QR_FOLDER):
+        os.makedirs(QR_FOLDER)
+
 
 def generate_qr_for_student(student):
-    data = f'{student["id"]}|{student["name"]}'
+    ensure_folder()
 
+    data = f'{student["id"]}|{student["name"]}'
     path = os.path.join(QR_FOLDER, f'{student["id"]}.png')
 
     qr = qrcode.make(data)
